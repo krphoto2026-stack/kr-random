@@ -322,7 +322,7 @@ const defaultStudents=()=>DEFAULT_ROSTER.map(r=>mk(r[0],r[1],r[2],r[3]));
 let S={students:[],themes:{},drawn:[],history:[],set:{cls:'__all',from:'',to:'',gender:'all',count:1,mode:'exclude'},sound:true};
 try{const d=JSON.parse(localStorage.getItem(LS));if(d)S={...S,...d,set:{...S.set,...(d.set||{})}}}catch(e){}
 const save=()=>localStorage.setItem(LS,JSON.stringify(S));
-try{if(localStorage.getItem(LS)===null)S.students=defaultStudents()}catch(e){S.students=defaultStudents()}
+if(!S.students.length&&!S.cleared){S.students=defaultStudents();S.drawn=[];S.history=[];try{save()}catch(e){}}
 
 /* ---------- utils ---------- */
 const classes=()=>[...new Set(S.students.map(s=>s.cls))].sort((a,b)=>a.localeCompare(b,'th',{numeric:true}));
@@ -641,7 +641,7 @@ drop.addEventListener('drop',e=>importFile(e.dataTransfer.files[0]));
 $('#btnTpl').onclick=downloadTemplate;
 $('#btnDefault').onclick=()=>{if(S.students.length&&!confirm('แทนที่ข้อมูลเดิมด้วยรายชื่อนักเรียนจากไฟล์ Excel?'))return;S.students=defaultStudents();S.drawn=[];S.history=[];S.set.cls='__all';ensureThemes();save();renderAll();toast(`โหลดรายชื่อ ${S.students.length} คน จาก ${classes().length} ห้องแล้ว`,'ok')};
 $('#btnSample').onclick=()=>{if(S.students.length&&!confirm('แทนที่ข้อมูลเดิมด้วยข้อมูลตัวอย่าง?'))return;S.students=sampleData();S.drawn=[];S.history=[];S.set.cls='__all';save();renderAll();toast('โหลดข้อมูลตัวอย่าง 3 ห้องแล้ว','ok')};
-$('#btnClear').onclick=()=>{if(!confirm('ลบรายชื่อ ประวัติ และการตั้งค่าการ์ดทั้งหมด?'))return;S.students=[];S.drawn=[];S.history=[];S.themes={};save();renderAll()};
+$('#btnClear').onclick=()=>{if(!confirm('ลบรายชื่อ ประวัติ และการตั้งค่าการ์ดทั้งหมด?'))return;S.students=[];S.drawn=[];S.history=[];S.themes={};S.cleared=true;save();renderAll()};
 $('#selClass').onchange=e=>{S.set.cls=e.target.value;S.set.from='';S.set.to='';save();renderAll()};
 $('#noFrom').oninput=e=>{S.set.from=e.target.value.trim();save();renderPool()};
 $('#noTo').oninput=e=>{S.set.to=e.target.value.trim();save();renderPool()};
