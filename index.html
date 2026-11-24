@@ -297,26 +297,176 @@ const ICONS={
 const I=(n,cls='')=>`<svg class="ic ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]||''}</svg>`;
 document.querySelectorAll('[data-ic]').forEach(el=>{el.outerHTML=I(el.dataset.ic,el.className)});
 
-/* ================= APP ================= */
+/* ================= APP & EMBEDDED STUDENTS ================= */
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-const THEMES={
-  gold:{name:'ทองคำ',bg:'linear-gradient(155deg,#fff3b0 0%,#e8c252 30%,#c99a2e 62%,#8a6412 100%)',fg:'#2b1d00',glow:'#ffd54a'},
-  icon:{name:'ไอคอน',bg:'linear-gradient(155deg,#ffffff 0%,#f3e6c4 35%,#d8bd7a 70%,#a88a45 100%)',fg:'#3a2a08',glow:'#fff1c1'},
-  toty:{name:'TOTY',bg:'linear-gradient(155deg,#2d6bff 0%,#0b1d5e 45%,#1c3fa8 75%,#0a1640 100%)',fg:'#ffd76a',glow:'#3d7bff'},
-  hero:{name:'ฮีโร่',bg:'linear-gradient(155deg,#d2a3ff 0%,#7a2fd0 42%,#3e0f7a 100%)',fg:'#ffffff',glow:'#b26bff'},
-  ballon:{name:'บัลลงดอร์',bg:'linear-gradient(155deg,#c9a227 0%,#2a2413 30%,#121212 60%,#3a3220 100%)',fg:'#ffd76a',glow:'#ffcc33'},
-  future:{name:'ฟิวเจอร์สตาร์',bg:'linear-gradient(155deg,#ff3cac 0%,#784ba0 50%,#2b86c5 100%)',fg:'#ffffff',glow:'#ff3cac'},
-  ruby:{name:'รูบี้',bg:'linear-gradient(155deg,#ff7a93 0%,#c3002f 45%,#5a0016 100%)',fg:'#fff0f3',glow:'#ff2d55'},
-  emerald:{name:'มรกต',bg:'linear-gradient(155deg,#8dffd6 0%,#00a86b 45%,#00402a 100%)',fg:'#effff8',glow:'#00e59b'},
-  fire:{name:'เปลวไฟ',bg:'linear-gradient(155deg,#ffd000 0%,#ff6a00 42%,#8a1500 100%)',fg:'#fff8e6',glow:'#ff7b00'},
-  silver:{name:'เงิน',bg:'linear-gradient(155deg,#ffffff 0%,#d4d9de 40%,#8e99a4 100%)',fg:'#1b232b',glow:'#dfe6ee'}
-};
-const STAT_NAMES=['ขยัน','ฉลาด','ตั้งใจ','น้ำใจ','วินัย','ไอเดีย'];
-const LS='fc_class_draw_v1';
-let S={students:[],themes:{},drawn:[],history:[],set:{cls:'__all',from:'',to:'',gender:'all',count:1,mode:'exclude'},sound:true};
-try{const d=JSON.parse(localStorage.getItem(LS));if(d)S={...S,...d,set:{...S.set,...(d.set||{})}}}catch(e){}
+const DEFAULT_STUDENTS=[
+  {"cls":"2/1","no":1,"name":"กันตวีร์ บัวงาม","gender":"ชาย"},
+  {"cls":"2/1","no":2,"name":"เกียรติศักดิ วงค์เศษ","gender":"ชาย"},
+  {"cls":"2/1","no":3,"name":"ชยานันท์ สวนพราย","gender":"ชาย"},
+  {"cls":"2/1","no":4,"name":"ณรงค์ศักดิ์ สมไผ่ล้อม","gender":"ชาย"},
+  {"cls":"2/1","no":5,"name":"ณัฐชนน ฮงทอง","gender":"ชาย"},
+  {"cls":"2/1","no":6,"name":"ดนุพร ศิรินัย","gender":"ชาย"},
+  {"cls":"2/1","no":7,"name":"ถิรธนา คณาสิงห์","gender":"ชาย"},
+  {"cls":"2/1","no":8,"name":"ธีรนันท์ บุญเจริญ","gender":"ชาย"},
+  {"cls":"2/1","no":9,"name":"ปวริศ อินสวน","gender":"ชาย"},
+  {"cls":"2/1","no":10,"name":"ธานี ศุภเกษ","gender":"ชาย"},
+  {"cls":"2/1","no":11,"name":"พีรพัฒน์ สมชาติ","gender":"ชาย"},
+  {"cls":"2/1","no":12,"name":"พุฒิชัย คูณน้อย","gender":"ชาย"},
+  {"cls":"2/1","no":13,"name":"มานะ คำเพราะ","gender":"ชาย"},
+  {"cls":"2/1","no":14,"name":"วัชรพงศ์ นันทา","gender":"ชาย"},
+  {"cls":"2/1","no":15,"name":"วีรภัทร สร้อยสนธิ์","gender":"ชาย"},
+  {"cls":"2/1","no":16,"name":"ศรัญยู ชินหงษ์","gender":"ชาย"},
+  {"cls":"2/1","no":17,"name":"กรรณิกา สำราญ","gender":"หญิง"},
+  {"cls":"2/1","no":18,"name":"เจนจิรา คำโสภา","gender":"หญิง"},
+  {"cls":"2/1","no":19,"name":"กมลรัตน์ ทองใคร้","gender":"หญิง"},
+  {"cls":"2/1","no":20,"name":"ธิดารัตน์ เดชทวี","gender":"หญิง"},
+  {"cls":"2/1","no":21,"name":"ธิติสุดา พวงจันดา","gender":"หญิง"},
+  {"cls":"2/1","no":22,"name":"นุชศรา สุภเลิศ","gender":"หญิง"},
+  {"cls":"2/1","no":23,"name":"บุณณดา บุญเริ่ม","gender":"หญิง"},
+  {"cls":"2/1","no":24,"name":"ปภาวดี ศรีแพงมล","gender":"หญิง"},
+  {"cls":"2/1","no":25,"name":"เปมิกา อัมภรัตน์","gender":"หญิง"},
+  {"cls":"2/1","no":26,"name":"พิชญาดา วรรณทวี","gender":"หญิง"},
+  {"cls":"2/1","no":27,"name":"พิชนันท์ พิมูลชาติ","gender":"หญิง"},
+  {"cls":"2/1","no":28,"name":"ภัททิยา บุดดาหน","gender":"หญิง"},
+  {"cls":"2/1","no":29,"name":"เม็ดทราย พันธ์วิไล","gender":"หญิง"},
+  {"cls":"2/1","no":30,"name":"ศศินา สีบุญ","gender":"หญิง"},
+  {"cls":"2/1","no":31,"name":"สุชานันท์ ทองโส","gender":"หญิง"},
+  {"cls":"2/1","no":32,"name":"สุดารัตน์ ภูกินหอม","gender":"หญิง"},
+  {"cls":"2/1","no":33,"name":"สุพัตรา บุญจันทร์","gender":"หญิง"},
+  {"cls":"2/1","no":34,"name":"อนงค์นาถ บูรพา","gender":"หญิง"},
+  {"cls":"2/1","no":35,"name":"อพิมญา ขจีฟ้า","gender":"หญิง"},
+  {"cls":"2/1","no":36,"name":"อภิญญา เหล่าบ้านเหนือ","gender":"หญิง"},
+  {"cls":"2/1","no":37,"name":"อิฐษริยาภัสสร โหงทอง ออก","gender":"หญิง"},
+  {"cls":"2/1","no":38,"name":"อุรัสยา สายวงษ์","gender":"หญิง"},
+  {"cls":"2/1","no":39,"name":"กานต์ธิดา กอพล","gender":"หญิง"},
+  {"cls":"2/1","no":40,"name":"ปกรณ์ ธรรมวัตร","gender":"ชาย"},
+  {"cls":"2/2","no":1,"name":"ณรณเดชณ์ วาทะสิทธิ์","gender":"ชาย"},
+  {"cls":"2/2","no":2,"name":"ณัฐวุฒิ สนิท","gender":"ชาย"},
+  {"cls":"2/2","no":3,"name":"ทรงพล สิงห์พันนา","gender":"ชาย"},
+  {"cls":"2/2","no":4,"name":"ธนภัทร อัมภรัตน์","gender":"ชาย"},
+  {"cls":"2/2","no":5,"name":"นพคุณ รามัญ","gender":"ชาย"},
+  {"cls":"2/2","no":6,"name":"ปฏิภาณ สุขอ้วน","gender":"ชาย"},
+  {"cls":"2/2","no":7,"name":"ประกาสิทธิ์ แก่นนาคำ","gender":"ชาย"},
+  {"cls":"2/2","no":8,"name":"ปิยพนธ์ พรมดี","gender":"ชาย"},
+  {"cls":"2/2","no":9,"name":"พงศกร บุดดีสุข","gender":"ชาย"},
+  {"cls":"2/2","no":10,"name":"พีระพงษ์ ห้อยคำ","gender":"ชาย"},
+  {"cls":"2/2","no":11,"name":"ยศกร เจ็ดจันทึก","gender":"ชาย"},
+  {"cls":"2/2","no":12,"name":"วรากร ธรรมแก้ว","gender":"ชาย"},
+  {"cls":"2/2","no":13,"name":"สุรธัช ไชยภักดี","gender":"ชาย"},
+  {"cls":"2/2","no":14,"name":"สุรเสกข์ สาโถน","gender":"ชาย"},
+  {"cls":"2/2","no":15,"name":"สุวรินทร์ โสวรรณี","gender":"ชาย"},
+  {"cls":"2/2","no":16,"name":"อธิเบศก์ ชราศรี","gender":"ชาย"},
+  {"cls":"2/2","no":17,"name":"อรรถวัต สายพงษ์","gender":"ชาย"},
+  {"cls":"2/2","no":18,"name":"กัญญาณัฐ พาบุตร","gender":"หญิง"},
+  {"cls":"2/2","no":19,"name":"กัญญาวีณ์ แคมคำ","gender":"หญิง"},
+  {"cls":"2/2","no":20,"name":"จันทร์กมล วงละคร","gender":"หญิง"},
+  {"cls":"2/2","no":21,"name":"จิรชยา ภูมลี","gender":"หญิง"},
+  {"cls":"2/2","no":22,"name":"ชญานิน นามสิงห์","gender":"หญิง"},
+  {"cls":"2/2","no":23,"name":"ฐานิตาภัทร บุญสว่าง","gender":"หญิง"},
+  {"cls":"2/2","no":24,"name":"ณัฐชยา ชิณโชติ","gender":"หญิง"},
+  {"cls":"2/2","no":25,"name":"ณัฐธิดา แก่นวิจิตร","gender":"หญิง"},
+  {"cls":"2/2","no":26,"name":"ณิชกุล ชำนาญวาท","gender":"หญิง"},
+  {"cls":"2/2","no":27,"name":"ดารณี กิ่มเกลี้ยง","gender":"หญิง"},
+  {"cls":"2/2","no":28,"name":"ดารารัตน์ กองสุข","gender":"หญิง"},
+  {"cls":"2/2","no":29,"name":"ทัศนีย์ เหลาเพียร","gender":"หญิง"},
+  {"cls":"2/2","no":30,"name":"ปิยะฉัตร แก้วพิลา","gender":"หญิง"},
+  {"cls":"2/2","no":31,"name":"พรวิลัย ปักปิ่น","gender":"หญิง"},
+  {"cls":"2/2","no":32,"name":"พสกร จันทร์ถา","gender":"หญิง"},
+  {"cls":"2/2","no":33,"name":"ภาวิตา พิมโพธิ์","gender":"หญิง"},
+  {"cls":"2/2","no":34,"name":"เมธิกาญจน์ อาษานอก","gender":"หญิง"},
+  {"cls":"2/2","no":35,"name":"วชิรญาณ์ สุขศรี","gender":"หญิง"},
+  {"cls":"2/2","no":36,"name":"วิรากานต์ ภาระนัง","gender":"หญิง"},
+  {"cls":"2/2","no":37,"name":"สุกัญญา วิลุน","gender":"หญิง"},
+  {"cls":"2/2","no":38,"name":"อรนภา ทำมะวัฒ","gender":"หญิง"},
+  {"cls":"2/2","no":39,"name":"อริสรา เชื้อชม","gender":"หญิง"},
+  {"cls":"2/2","no":40,"name":"อุรัชญา ชาภักดี","gender":"หญิง"},
+  {"cls":"2/3","no":1,"name":"วิไลวรรณ พิมพาวัตร","gender":"หญิง"},
+  {"cls":"2/3","no":2,"name":"กฤษฎา นันทา","gender":"ชาย"},
+  {"cls":"2/3","no":3,"name":"กิตติคุณ บุญพอ","gender":"ชาย"},
+  {"cls":"2/3","no":4,"name":"ไกรเทพ แก้วมา","gender":"ชาย"},
+  {"cls":"2/3","no":5,"name":"ชนาภัทร กมล","gender":"ชาย"},
+  {"cls":"2/3","no":6,"name":"เตชิต พันจันลา","gender":"ชาย"},
+  {"cls":"2/3","no":7,"name":"ทศพร ทูลลา","gender":"ชาย"},
+  {"cls":"2/3","no":8,"name":"ธนพล นนใส","gender":"ชาย"},
+  {"cls":"2/3","no":9,"name":"นรินทร ทองมาก","gender":"ชาย"},
+  {"cls":"2/3","no":10,"name":"พฤฒิพงศ์ อุ่นอ่อน","gender":"ชาย"},
+  {"cls":"2/3","no":11,"name":"ยุทธโชค โยธะชัย","gender":"ชาย"},
+  {"cls":"2/3","no":12,"name":"รัฐภูมิ นามโคตร","gender":"ชาย"},
+  {"cls":"2/3","no":13,"name":"วัชรชัย ชาภักดี","gender":"ชาย"},
+  {"cls":"2/3","no":14,"name":"วัชรพล สืบสิมมา","gender":"ชาย"},
+  {"cls":"2/3","no":15,"name":"สรวิชญ์ คุณสัตย์","gender":"ชาย"},
+  {"cls":"2/3","no":16,"name":"สิทธิเดช สารภาค","gender":"ชาย"},
+  {"cls":"2/3","no":17,"name":"ขวัญจิรา ลาดล้อม","gender":"หญิง"},
+  {"cls":"2/3","no":18,"name":"จารุกัญญ์ จันทะสุนีย์","gender":"หญิง"},
+  {"cls":"2/3","no":19,"name":"จีรตา แถวปัดถา","gender":"หญิง"},
+  {"cls":"2/3","no":20,"name":"ชญาดา วงศ์ใหญ่","gender":"หญิง"},
+  {"cls":"2/3","no":21,"name":"ชญานี พรมมา","gender":"หญิง"},
+  {"cls":"2/3","no":22,"name":"ดวงหทัย เงาศรี","gender":"หญิง"},
+  {"cls":"2/3","no":23,"name":"ธัญญาภรณ์ ประทาย","gender":"หญิง"},
+  {"cls":"2/3","no":24,"name":"นันธญา ถานุจันทร์","gender":"หญิง"},
+  {"cls":"2/3","no":25,"name":"ปณตภรณ์ โสวรรณี","gender":"หญิง"},
+  {"cls":"2/3","no":26,"name":"พัสศุนันท์ ทาระ","gender":"หญิง"},
+  {"cls":"2/3","no":27,"name":"ภิญญาพัชญ์ คำเพราะ","gender":"หญิง"},
+  {"cls":"2/3","no":28,"name":"รัตนา กุตะวัน","gender":"หญิง"},
+  {"cls":"2/3","no":29,"name":"จิณณ์ณิชา สรรพศรี","gender":"หญิง"},
+  {"cls":"2/3","no":30,"name":"ลลิดา จันละออ","gender":"หญิง"},
+  {"cls":"2/3","no":31,"name":"วรารัตน์ บุญใหญ่","gender":"หญิง"},
+  {"cls":"2/3","no":32,"name":"วิภาพร บุญถนอม","gender":"หญิง"},
+  {"cls":"2/3","no":33,"name":"วิมลกานต์ ดวงสีดา","gender":"หญิง"},
+  {"cls":"2/3","no":34,"name":"ศุกลภัทร หมู่กระโทก","gender":"หญิง"},
+  {"cls":"2/3","no":35,"name":"สุตาภัทร พัทธศรีมา","gender":"หญิง"},
+  {"cls":"2/3","no":36,"name":"เสริมศิริฎา เหมือนมาตย์","gender":"หญิง"},
+  {"cls":"2/3","no":37,"name":"อรญา บุญริ้ว","gender":"หญิง"},
+  {"cls":"2/3","no":38,"name":"ธนดล ศิริเนตร","gender":"ชาย"},
+  {"cls":"2/3","no":39,"name":"มีนชญา พลรัตน์","gender":"หญิง"},
+  {"cls":"2/3","no":40,"name":"ภูมิพัฒน์ ผาแก้ว","gender":"ชาย"},
+  {"cls":"2/4","no":1,"name":"ภาคภูมิ ชาภัคดี ออก","gender":"ชาย"},
+  {"cls":"2/4","no":2,"name":"กฤตานนท์ วงศ์ประสาร","gender":"ชาย"},
+  {"cls":"2/4","no":3,"name":"กลวัชร จำปาแก้ว","gender":"ชาย"},
+  {"cls":"2/4","no":4,"name":"กิติพศน์ พลราษฎร์","gender":"ชาย"},
+  {"cls":"2/4","no":5,"name":"เกียรติรัตน์ วิริยะพัฒนะพงศ์","gender":"ชาย"},
+  {"cls":"2/4","no":6,"name":"เกียรติศักดิ์ พันธุ์เนื่อง","gender":"ชาย"},
+  {"cls":"2/4","no":7,"name":"จิรัชยา สืบสิมมา","gender":"ชาย"},
+  {"cls":"2/4","no":8,"name":"ชัชวาลย์ ศรีรักษา","gender":"ชาย"},
+  {"cls":"2/4","no":9,"name":"ทรงพล หิปะนัติ","gender":"ชาย"},
+  {"cls":"2/4","no":10,"name":"ธนัชชัย แก้วมณี","gender":"ชาย"},
+  {"cls":"2/4","no":11,"name":"ภันเต สุขอ้วน","gender":"ชาย"},
+  {"cls":"2/4","no":12,"name":"วนรัชต์ ราชบุญคุณ","gender":"ชาย"},
+  {"cls":"2/4","no":13,"name":"วิระพล พวงพันธ์","gender":"ชาย"},
+  {"cls":"2/4","no":14,"name":"ศิรวิชณ์ เงาศรี","gender":"ชาย"},
+  {"cls":"2/4","no":15,"name":"ศุภชัย ปัญญารัมย์","gender":"ชาย"},
+  {"cls":"2/4","no":16,"name":"ศุภสิน เดชหาญ ออก","gender":"ชาย"},
+  {"cls":"2/4","no":17,"name":"เหนือฟ้า ไกรศรี","gender":"ชาย"},
+  {"cls":"2/4","no":18,"name":"กนกกาญจน์ จันทร์แจ้ง","gender":"หญิง"},
+  {"cls":"2/4","no":19,"name":"กาญจนา ทิมา","gender":"หญิง"},
+  {"cls":"2/4","no":20,"name":"ชนิกานต์ พิมสาร","gender":"หญิง"},
+  {"cls":"2/4","no":21,"name":"ญาณิดา เครือบุดดา","gender":"หญิง"},
+  {"cls":"2/4","no":22,"name":"ณัชชา น้ำจันทร์","gender":"หญิง"},
+  {"cls":"2/4","no":23,"name":"ทิฆัมพร ไพกะเพศ","gender":"หญิง"},
+  {"cls":"2/4","no":24,"name":"ธนัชชา ศภศร","gender":"หญิง"},
+  {"cls":"2/4","no":25,"name":"นภควดี บุญเชื่อม","gender":"หญิง"},
+  {"cls":"2/4","no":26,"name":"บริมาส ดาลประสงค์","gender":"หญิง"},
+  {"cls":"2/4","no":27,"name":"ประภัสรา ป้อมอาสา","gender":"หญิง"},
+  {"cls":"2/4","no":28,"name":"ปราณปริยา จงจรูญเกียรติ","gender":"หญิง"},
+  {"cls":"2/4","no":29,"name":"ปัฑมาภรณ์ มุขขันธ์","gender":"หญิง"},
+  {"cls":"2/4","no":30,"name":"ปัณณรัตน์ รักษาเชื้อ","gender":"หญิง"},
+  {"cls":"2/4","no":31,"name":"ปิยวรรณ สะอาด","gender":"หญิง"},
+  {"cls":"2/4","no":32,"name":"ภัทรศยา สะอาด","gender":"หญิง"},
+  {"cls":"2/4","no":33,"name":"ภิรมย์รัตน์ พงษ์พันธ์","gender":"หญิง"},
+  {"cls":"2/4","no":34,"name":"อธิชา สมศิริ","gender":"หญิง"},
+  {"cls":"2/4","no":35,"name":"อรไท ไชยมา","gender":"หญิง"},
+  {"cls":"2/4","no":36,"name":"อารยา วงษา","gender":"หญิง"},
+  {"cls":"2/4","no":37,"name":"ไอรดา พันเพ็ชร","gender":"หญิง"},
+  {"cls":"2/4","no":38,"name":"ธิติพร สุตะคาน","gender":"หญิง"},
+  {"cls":"2/4","no":39,"name":"ศศิณี อัมภรัตน์","gender":"หญิง"},
+  {"cls":"2/4","no":40,"name":"ธัญญรัตน์ พนม","gender":"หญิง"}
+];
+
+const LS='kr_random_v2';
+let S={students:DEFAULT_STUDENTS.map(s=>({...s,id:`${s.cls}|${s.no}|${s.name}`})),themes:{},drawn:[],history:[],set:{cls:'__all',from:'',to:'',gender:'all',count:1,mode:'exclude'},sound:true};
+try{const d=JSON.parse(localStorage.getItem(LS));if(d&&d.students&&d.students.length)S={...S,...d,set:{...S.set,...(d.set||{})}}}catch(e){}
 const save=()=>localStorage.setItem(LS,JSON.stringify(S));
 
 /* ---------- utils ---------- */
@@ -352,7 +502,7 @@ function parseWB(wb){
     const aoa=XLSX.utils.sheet_to_json(wb.Sheets[sn],{header:1,defval:''});
     const hi=aoa.findIndex((r,i)=>i<25&&r.some(c=>/ชื่อ|name/i.test(String(c))));
     if(hi<0)return;
-    const head=aoa[hi].map(h=>String(h).toLowerCase().replace(/[\s.]/g,''));
+    const head=aoa[hi].map(h=>String(h).toLowerCase().replace(/[\s.]/g, ''));
     const find=(pats,ex=[])=>{for(const p of pats){const i=head.findIndex(h=>h.includes(p)&&!ex.some(x=>h.includes(x)));if(i>=0)return i}return -1};
     let nameI=find(['ชื่อ-นามสกุล','ชื่อนามสกุล','ชื่อ-สกุล','ชื่อสกุล','fullname']),full=nameI>=0;
     if(!full)nameI=find(['ชื่อ','name'],['ชื่อเล่น','nickname','lastname','surname','นามสกุล']);
@@ -383,7 +533,7 @@ async function importFile(f){
     const wb=XLSX.read(await f.arrayBuffer(),{type:'array'});
     const list=parseWB(wb);
     if(!list.length){toast('ไม่พบรายชื่อ — ตรวจสอบว่ามีหัวคอลัมน์ "ชื่อ"','err');return}
-    const replace=!S.students.length||confirm(`พบนักเรียน ${list.length} คน\n\nกด OK = แทนที่ข้อมูลเดิมทั้งหมด\nกด Cancel = เพิ่มต่อจากข้อมูลเดิม`);
+    const replace=confirm(`พบนักเรียน ${list.length} คนในไฟล์\n\nกด OK = แทนที่ข้อมูลทั้งหมด\nกด Cancel = เพิ่มต่อจากข้อมูลเดิม`);
     if(replace){S.students=list;S.drawn=[];S.history=[];S.set.cls='__all'}
     else{const ids=new Set(S.students.map(s=>s.id));list.forEach(s=>{if(!ids.has(s.id))S.students.push(s)})}
     ensureThemes();save();renderAll();
@@ -392,16 +542,9 @@ async function importFile(f){
 }
 function downloadTemplate(){
   if(!needXLSX())return;
-  const ws=XLSX.utils.aoa_to_sheet([['เลขที่','ชื่อ-นามสกุล','ชั้น','เพศ'],[1,'ด.ช.สมชาย ใจดี','ม.1/1','ชาย'],[2,'ด.ญ.สมหญิง รักเรียน','ม.1/1','หญิง'],[3,'ด.ช.ภูมิ แสงทอง','ม.1/1','ชาย'],[1,'ด.ญ.ปุณยวีร์ ศรีสุข','ม.1/2','หญิง'],[2,'ด.ช.ธนกร มั่นคง','ม.1/2','ชาย']]);
+  const ws=XLSX.utils.aoa_to_sheet([['เลขที่','ชื่อ-นามสกุล','ชั้น','เพศ'],[1,'ด.ช.สมชาย ใจดี','ม.1/1','ชาย'],[2,'ด.ญ.สมหญิง รักเรียน','ม.1/1','หญิง']]);
   ws['!cols']=[{wch:8},{wch:30},{wch:10},{wch:8}];
   const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'รายชื่อ');XLSX.writeFile(wb,'แม่แบบรายชื่อนักเรียน.xlsx');
-}
-function sampleData(){
-  const b=['ภูมิ','ธนกร','ปัณณวัฒน์','กิตติพัฒน์','ณัฐวุฒิ','ภาคิน','ศุภกร','ธีรภัทร','พีรพล','ชยพล','วรเมธ','อชิตะ'];
-  const g=['ปุณยวีร์','ณิชาภัทร','พิมพ์ชนก','กัญญาณัฐ','ชนิสรา','ธัญชนก','ญาณิศา','ปภาวรินทร์','พัชรินทร์','อรปรียา','ศิริกาญจน์','วรัญญา'];
-  const l=['ใจดี','รักเรียน','ศรีสุข','มั่นคง','แสงทอง','บุญมา','วงศ์ไทย','พูลสวัสดิ์','ทองคำ','สายสุวรรณ'];
-  const out=[];['ม.1/1','ม.1/2','ม.2/1'].forEach(c=>{for(let i=1;i<=24;i++){const sx=i%2?'ชาย':'หญิง';const fn=(sx==='ชาย'?b:g)[rnd(12)];out.push(mk(c,i,fn+' '+l[rnd(l.length)],sx))}});
-  return out;
 }
 
 /* ================= CARTOON STUDENT AVATAR ================= */
@@ -416,8 +559,6 @@ function avatar(s){
   const girl=s.gender==='หญิง';
   const ink='#2a1d1a',shirtLine='#b9c4d6',navy='#1e3a8a';
   let o='';
-
-  // --- ผมด้านหลัง (ผู้หญิง) ---
   if(girl){
     if(style===2){
       o+=`<ellipse cx="22" cy="64" rx="10" ry="17" fill="${hair}"/><ellipse cx="98" cy="64" rx="10" ry="17" fill="${hair}"/>`;
@@ -426,9 +567,7 @@ function avatar(s){
       o+=`<path d="M26 58C22 28 40 15 60 15s38 13 34 43c0 12 2 22 6 28-10 4-20 2-26-4H46c-6 6-16 8-26 4 4-6 6-16 6-28z" fill="${hair}"/>`;
     }
   }
-  // --- เสื้อนักเรียน ---
   o+=`<path d="M12 130c0-26 18-40 48-42 30 2 48 16 48 42z" fill="#fff" stroke="${shirtLine}" stroke-width="1.5"/>`;
-  // คอ
   o+=`<path d="M50 74h20v16H50z" fill="${skin}"/><path d="M50 78h20v5H50z" fill="#000" opacity=".08"/>`;
   if(girl){
     o+=`<path d="M48 88 60 106 72 88z" fill="${skin}"/>`;
@@ -443,7 +582,6 @@ function avatar(s){
     o+=`<path d="M33 108h14v11a2 2 0 0 1-2 2H35a2 2 0 0 1-2-2z" fill="none" stroke="${shirtLine}" stroke-width="1.5"/>`;
     o+=`<path d="M74 113h13M76 118h9" stroke="#2c4fa3" stroke-width="2" stroke-linecap="round"/>`;
   }
-  // --- หัว หู ใบหน้า ---
   o+=`<circle cx="31" cy="56" r="6" fill="${skin}"/><circle cx="89" cy="56" r="6" fill="${skin}"/>`;
   o+=`<ellipse cx="60" cy="52" rx="29" ry="30" fill="${skin}"/>`;
   o+=`<path d="M43 48q5-3.5 10 0M67 48q5-3.5 10 0" stroke="${hair}" stroke-width="2.4" fill="none" stroke-linecap="round"/>`;
@@ -454,7 +592,6 @@ function avatar(s){
   o+=`<path d="M58.5 62.5q1.5 1.6 3 0" stroke="#b07a5a" stroke-width="1.5" fill="none" stroke-linecap="round"/>`;
   o+=grin?`<path d="M52 67.5q8 10 16 0z" fill="#8a2b2b"/><path d="M55.5 71.5q4.5 3 9 0" fill="#ff8a8a"/>`
          :`<path d="M53 68q7 7 14 0" stroke="#8a3b2b" stroke-width="2.2" fill="none" stroke-linecap="round"/>`;
-  // --- ผมด้านหน้า ---
   if(girl){
     o+=`<path d="M30 54C28 30 42 19 60 19s32 11 30 35c-4-7-6-13-8-16-2 4-6 6-10 6 1-3 1-5 0-7-6 5-16 8-26 8-4 2-7 5-8 9z" fill="${hair}"/>`;
     if(style===1)o+=`<path d="M31 62c-3 16-4 32-9 44 7 3 15 2 21-2-3-12-3-26-2-38zM89 62c3 16 4 32 9 44-7 3-15 2-21-2 3-12 3-26 2-38z" fill="${hair}"/>`;
@@ -468,10 +605,24 @@ function avatar(s){
     ];
     o+=`<path d="${boyHair[style]}" fill="${hair}"/>`;
   }
-  // --- แว่นตา ---
   if(glasses)o+=`<g fill="#ffffff" fill-opacity=".18" stroke="#2a2a3a" stroke-width="2"><circle cx="48" cy="57" r="7.5"/><circle cx="72" cy="57" r="7.5"/><path d="M55.5 57h9M40.5 56l-9-2M79.5 56l9-2" fill="none"/></g>`;
   return`<svg viewBox="0 0 120 130" aria-hidden="true">${o}</svg>`;
 }
+
+/* ---------- themes ---------- */
+const THEMES={
+  gold:{name:'ทองคำ',bg:'linear-gradient(155deg,#fff3b0 0%,#e8c252 30%,#c99a2e 62%,#8a6412 100%)',fg:'#2b1d00',glow:'#ffd54a'},
+  icon:{name:'ไอคอน',bg:'linear-gradient(155deg,#ffffff 0%,#f3e6c4 35%,#d8bd7a 70%,#a88a45 100%)',fg:'#3a2a08',glow:'#fff1c1'},
+  toty:{name:'TOTY',bg:'linear-gradient(155deg,#2d6bff 0%,#0b1d5e 45%,#1c3fa8 75%,#0a1640 100%)',fg:'#ffd76a',glow:'#3d7bff'},
+  hero:{name:'ฮีโร่',bg:'linear-gradient(155deg,#d2a3ff 0%,#7a2fd0 42%,#3e0f7a 100%)',fg:'#ffffff',glow:'#b26bff'},
+  ballon:{name:'บัลลงดอร์',bg:'linear-gradient(155deg,#c9a227 0%,#2a2413 30%,#121212 60%,#3a3220 100%)',fg:'#ffd76a',glow:'#ffcc33'},
+  future:{name:'ฟิวเจอร์สตาร์',bg:'linear-gradient(155deg,#ff3cac 0%,#784ba0 50%,#2b86c5 100%)',fg:'#ffffff',glow:'#ff3cac'},
+  ruby:{name:'รูบี้',bg:'linear-gradient(155deg,#ff7a93 0%,#c3002f 45%,#5a0016 100%)',fg:'#fff0f3',glow:'#ff2d55'},
+  emerald:{name:'มรกต',bg:'linear-gradient(155deg,#8dffd6 0%,#00a86b 45%,#00402a 100%)',fg:'#effff8',glow:'#00e59b'},
+  fire:{name:'เปลวไฟ',bg:'linear-gradient(155deg,#ffd000 0%,#ff6a00 42%,#8a1500 100%)',fg:'#fff8e6',glow:'#ff7b00'},
+  silver:{name:'เงิน',bg:'linear-gradient(155deg,#ffffff 0%,#d4d9de 40%,#8e99a4 100%)',fg:'#1b232b',glow:'#dfe6ee'}
+};
+const STAT_NAMES=['ขยัน','ฉลาด','ตั้งใจ','น้ำใจ','วินัย','ไอเดีย'];
 
 /* ---------- render ---------- */
 function getPool(){
@@ -634,21 +785,20 @@ const drop=$('#drop');
 ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('drag')}));
 drop.addEventListener('drop',e=>importFile(e.dataTransfer.files[0]));
 $('#btnTpl').onclick=downloadTemplate;
-$('#btnSample').onclick=()=>{if(S.students.length&&!confirm('แทนที่ข้อมูลเดิมด้วยข้อมูลตัวอย่าง?'))return;S.students=sampleData();S.drawn=[];S.history=[];S.set.cls='__all';save();renderAll();toast('โหลดข้อมูลตัวอย่าง 3 ห้องแล้ว','ok')};
-$('#btnClear').onclick=()=>{if(!confirm('ลบรายชื่อ ประวัติ และการตั้งค่าการ์ดทั้งหมด?'))return;S.students=[];S.drawn=[];S.history=[];S.themes={};save();renderAll()};
+$('#btnClear').onclick=()=>{if(!confirm('ล้างข้อมูลนักเรียนทั้งหมดในระบบ?'))return;S.students=[];S.drawn=[];S.history=[];S.themes={};save();renderAll()};
 $('#selClass').onchange=e=>{S.set.cls=e.target.value;S.set.from='';S.set.to='';save();renderAll()};
 $('#noFrom').oninput=e=>{S.set.from=e.target.value.trim();save();renderPool()};
 $('#noTo').oninput=e=>{S.set.to=e.target.value.trim();save();renderPool()};
 document.querySelectorAll('#segGender button').forEach(b=>b.onclick=()=>{S.set.gender=b.dataset.v;save();renderSettings();renderPool()});
 document.querySelectorAll('#segMode button').forEach(b=>b.onclick=()=>{S.set.mode=b.dataset.v;save();renderSettings();renderPool()});
 const setCount=v=>{S.set.count=Math.max(1,Math.min(30,parseInt(v)||1));save();renderSettings();renderPack()};
-$('#cMinus').onclick=()=>setCount(S.set.count-1);$('#cPlus').onclick=()=>setCount(S.set.count+1);$('#cnt').onchange=e=>setCount(e.target.value);
+$('#cMinus').onclick=()=>setCount(S.set.count-1);$('#cPlus').onclick=()=>setCount(S.set.count+1);$('#cnt'].onchange=e=>setCount(e.target.value);
 $('#btnReset').onclick=()=>{if(!S.drawn.length){toast('ยังไม่มีใครถูกคัดออก','info');return}if(confirm(`คืนรายชื่อ ${S.drawn.length} คนกลับเข้ากองสุ่ม?`)){S.drawn=[];save();renderAll();toast('คืนรายชื่อเรียบร้อย','ok')}};
-$('#btnClearHist').onclick=()=>{if(confirm('ล้างประวัติการสุ่ม? (ไม่กระทบรายชื่อที่ถูกคัดออก)')){S.history=[];save();renderHistory()}};
+$('#btnClearHist').onclick=()=>{if(confirm('ล้างประวัติการสุ่ม?')){S.history=[];save();renderHistory()}};
 $('#btnOpen').onclick=openPack;
 $('#skipBtn').onclick=doSkip;$('#closeBtn').onclick=closeOv;
 $('#btnSound').onclick=()=>{S.sound=!S.sound;save();renderSettings()};
-$('#btnList').onclick=openList;$('#listClose').onclick=()=>$('#listModal').classList.remove('show');
+$('#btnList').onclick=openList;$('#listClose').onclick=()=>$('#listModal').classList.remove('classList','show');
 $('#listModal').onclick=e=>{if(e.target.id==='listModal')e.currentTarget.classList.remove('show')};
 document.addEventListener('keydown',e=>{
   if(['INPUT','SELECT','TEXTAREA'].includes(document.activeElement.tagName))return;
