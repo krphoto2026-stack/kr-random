@@ -322,7 +322,6 @@ const defaultStudents=()=>DEFAULT_ROSTER.map(r=>mk(r[0],r[1],r[2],r[3]));
 let S={students:[],themes:{},drawn:[],history:[],set:{cls:'__all',from:'',to:'',gender:'all',count:1,mode:'exclude'},sound:true};
 try{const d=JSON.parse(localStorage.getItem(LS));if(d)S={...S,...d,set:{...S.set,...(d.set||{})}}}catch(e){}
 const save=()=>localStorage.setItem(LS,JSON.stringify(S));
-if(!S.students.length&&!S.cleared){S.students=defaultStudents();S.drawn=[];S.history=[];try{save()}catch(e){}}
 
 /* ---------- utils ---------- */
 const classes=()=>[...new Set(S.students.map(s=>s.cls))].sort((a,b)=>a.localeCompare(b,'th',{numeric:true}));
@@ -661,6 +660,8 @@ document.addEventListener('keydown',e=>{
   if(e.code==='Space'){e.preventDefault();if(!$('#ov').classList.contains('show'))openPack();else doSkip()}
   if(e.code==='Escape'){if($('#ov').classList.contains('show'))closeOv();$('#listModal').classList.remove('show')}
 });
+if(!S.students.length&&!S.cleared){S.students=defaultStudents();S.drawn=[];S.history=[];try{save()}catch(e){}}
+ensureThemes();
 renderAll();
 </script>
 </body>
